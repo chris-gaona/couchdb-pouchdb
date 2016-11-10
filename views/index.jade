@@ -3,3 +3,39 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+
+  script(src="//cdn.jsdelivr.net/pouchdb/6.0.7/pouchdb.min.js")
+  script.
+    window.PouchDB = PouchDB;
+
+    var localdb = new PouchDB('kittens');
+
+    localdb.info().then(function (info) {
+        console.log(info);
+    });
+
+    // var doc = {
+    //"_id": "mittens",
+            //"name": "Mittens",
+            //"occupation": "kitten",
+            //"age": 3,
+            //"hobbies": [
+                //"playing with balls of yarn",
+                //"chasing laser pointers",
+                //"lookin' hella cute"
+            //]
+    //};
+    //db.put(doc);
+
+    // fetch mittens
+    localdb.get('mittens').then(function (doc) {
+        // update their age
+        doc.age = 5;
+        // put them back
+        return localdb.put(doc);
+    }).then(function () {
+        // fetch mittens again
+        return localdb.get('mittens');
+    }).then(function (doc) {
+        console.log(doc);
+    });

@@ -14,28 +14,37 @@ block content
         console.log(info);
     });
 
-    // var doc = {
-    //"_id": "mittens",
-            //"name": "Mittens",
-            //"occupation": "kitten",
-            //"age": 3,
-            //"hobbies": [
-                //"playing with balls of yarn",
-                //"chasing laser pointers",
-                //"lookin' hella cute"
-            //]
-    //};
-    //db.put(doc);
+    //     var doc = {
+    //    "_id": "mittens",
+    //            "name": "Mittens",
+    //            "occupation": "kitten",
+    //            "age": 3,
+    //            "hobbies": [
+    //                "playing with balls of yarn",
+    //                "chasing laser pointers",
+    //                "lookin' hella cute"
+    //            ]
+    //    };
+    //    localdb.put(doc);
 
     // fetch mittens
-    localdb.get('mittens').then(function (doc) {
-        // update their age
-        doc.age = 5;
-        // put them back
-        return localdb.put(doc);
-    }).then(function () {
-        // fetch mittens again
-        return localdb.get('mittens');
-    }).then(function (doc) {
-        console.log(doc);
-    });
+    //localdb.get('mittens').then(function (doc) {
+    //    // update their age
+    //    doc.age = 5;
+    //    // put them back
+    //    return localdb.put(doc);
+    //}).then(function () {
+    //    // fetch mittens again
+    //    return localdb.get('mittens');
+    //}).then(function (doc) {
+    //    console.log(doc);
+    //}, function (err) {
+    //    console.log(err);
+    //});
+
+    //    When you remove() a document, it's not really deleted; it just gets a _deleted attribute added to it.
+        localdb.get('mittens').then(function (doc) {
+            return localdb.remove(doc);
+        }, function (err) {
+            console.log(err);
+        });

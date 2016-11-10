@@ -14,6 +14,52 @@ block content
         console.log(info);
     });
 
+    // The bulkDocs() API is very simple. It just takes a list of documents that you want to put() into the database:
+    //localdb.bulkDocs([
+    //    {
+    //        _id: 'mittens',
+    //        occupation: 'kitten',
+    //        cuteness: 9.0
+    //    },
+    //    {
+    //        _id: 'katie',
+    //        occupation: 'kitten',
+    //        cuteness: 7.0
+    //    },
+    //    {
+    //        _id: 'felix',
+    //        occupation: 'kitten',
+    //        cuteness: 8.0
+    //    }
+    //]);
+
+    localdb.put({
+        _id: new Date().toJSON(),
+        name: 'Mittens',
+        occupation: 'kitten',
+        cuteness: 9.0
+    }).then(function () {
+        return localdb.put({
+            _id: new Date().toJSON(),
+            name: 'Katie',
+            occupation: 'kitten',
+            cuteness: 7.0
+        });
+    }).then(function () {
+        return localdb.put({
+            _id: new Date().toJSON(),
+            name: 'Felix',
+            occupation: 'kitten',
+            cuteness: 8.0
+        });
+    }).then(function () {
+        return localdb.allDocs({include_docs: true});
+    }).then(function (response) {
+        console.log(response);
+    }).catch(function (err) {
+        console.log(err);
+    });
+
     //     var doc = {
     //    "_id": "mittens",
     //            "name": "Mittens",
@@ -43,8 +89,8 @@ block content
     //});
 
     //    When you remove() a document, it's not really deleted; it just gets a _deleted attribute added to it.
-        localdb.get('mittens').then(function (doc) {
-            return localdb.remove(doc);
-        }, function (err) {
-            console.log(err);
-        });
+    //localdb.get('mittens').then(function (doc) {
+    //    return localdb.remove(doc);
+    //}, function (err) {
+    //    console.log(err);
+    //});

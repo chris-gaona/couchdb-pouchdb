@@ -10,83 +10,104 @@ block content
   script.
     window.PouchDB = PouchDB;
 
-    //var localdb = new PouchDB('kittens');
-    new PouchDB('kittens').destroy();
+    //new PouchDB('kittens').destroy();
+    //new PouchDB('http://localhost:5984/kittens').destroy();
 
-    //localdb.info().then(function (info) {
-        //console.log(info);
-    //});
+    var localdb = new PouchDB('kittens');
+    var remotedb = new PouchDB('http://localhost:5984/kittens');
 
-    // upload user image or file to pouchdb
-    document.addEventListener('DOMContentLoaded', function () {
-        var inputFile = document.querySelector('#inputFile');
-        var imageMetaData = document.querySelector('#img_meta_data');
-        var getFile;
-
-        function fileUpload() {
-            getFile = inputFile.files[0];
-            // getFile is now a Blob
-
-            // Destroy the database before doing anything, because I want
-            // you to see the same thing if you reload.
-            // Ignore the man behind the curtain!
-            new PouchDB('sample').destroy().then(function () {
-                return new PouchDB('sample');
-            }).then(function (db) {
-                //
-                // IMPORTANT CODE STARTS HERE
-                //
-                db.put({
-                    _id: 'image',
-                    _attachments: {
-                        "file": {
-                            type: getFile.type,
-                            data: getFile
-                        }
-                    }
-                }).then(function () {
-                    return db.getAttachment('image', 'file');
-                }).then(function (blob) {
-                    var url = URL.createObjectURL(blob);
-                    var img = document.createElement('img');
-                    img.src = url;
-                    document.body.appendChild(img);
-
-                    var fileSize = JSON.stringify(Math.floor(blob.size / 1024));
-                    var contentType = JSON.stringify(blob.type);
-
-                    imageMetaData.innerText = 'Filesize: ' + fileSize + 'KB, Content-Type: ' + contentType;
-                }).catch(function (err) {
-                    console.log(err);
-                });
-                //
-                // IMPORTANT CODE ENDS HERE
-                //
-            });
-        }
-
-        // wait for change, then call the function
-        inputFile.addEventListener('change', fileUpload, false);
+    remotedb.info().then(function (info) {
+        console.log(info);
     });
 
-    // The bulkDocs() API is very simple. It just takes a list of documents that you want to put() into the database:
-    //localdb.bulkDocs([
-    //    {
-    //        _id: 'mittens',
-    //        occupation: 'kitten',
-    //        cuteness: 9.0
-    //    },
-    //    {
-    //        _id: 'katie',
-    //        occupation: 'kitten',
-    //        cuteness: 7.0
-    //    },
-    //    {
-    //        _id: 'felix',
-    //        occupation: 'kitten',
-    //        cuteness: 8.0
+    //Live Replication
+    localdb.sync(remotedb, {
+        live: true,
+        retry: true
+    }).on('change', function (change) {
+        // yo, something changed!
+        console.log('Something changed!');
+    }).on('paused', function (info) {
+        // replication was paused, usually because of a lost connection
+        console.log('Sync paused!');
+    }).on('active', function (info) {
+        // replication was resumed
+        console.log('Sync / replication has resumed!');
+    }).on('error', function (err) {
+        // totally unhandled error (shouldn't happen)
+        console.log('Some odd error happened');
+    });
+
+    //// upload user image or file to pouchdb
+    //document.addEventListener('DOMContentLoaded', function () {
+    //    var inputFile = document.querySelector('#inputFile');
+    //    var imageMetaData = document.querySelector('#img_meta_data');
+    //    var getFile;
+    //
+    //    function fileUpload() {
+    //        getFile = inputFile.files[0];
+    //        // getFile is now a Blob
+    //
+    //        // Destroy the database before doing anything, because I want
+    //        // you to see the same thing if you reload.
+    //        // Ignore the man behind the curtain!
+    //        new PouchDB('sample').destroy().then(function () {
+    //            return new PouchDB('sample');
+    //        }).then(function (db) {
+    //            //
+    //            // IMPORTANT CODE STARTS HERE
+    //            //
+    //            db.put({
+    //                _id: 'image',
+    //                _attachments: {
+    //                    "file": {
+    //                        type: getFile.type,
+    //                        data: getFile
+    //                    }
+    //                }
+    //            }).then(function () {
+    //                return db.getAttachment('image', 'file');
+    //            }).then(function (blob) {
+    //                var url = URL.createObjectURL(blob);
+    //                var img = document.createElement('img');
+    //                img.src = url;
+    //                document.body.appendChild(img);
+    //
+    //                var fileSize = JSON.stringify(Math.floor(blob.size / 1024));
+    //                var contentType = JSON.stringify(blob.type);
+    //
+    //                imageMetaData.innerText = 'Filesize: ' + fileSize + 'KB, Content-Type: ' + contentType;
+    //            }).catch(function (err) {
+    //                console.log(err);
+    //            });
+    //            //
+    //            // IMPORTANT CODE ENDS HERE
+    //            //
+    //        });
     //    }
-    //]);
+    //
+    //    // wait for change, then call the function
+    //    inputFile.addEventListener('change', fileUpload, false);
+    //});
+
+    // The bulkDocs() API is very simple. It just takes a list of documents that you want to put() into the database:
+    localdb.bulkDocs([
+        {
+            _id: 'mittens',
+            occupation: 'kitten',
+            cuteness: 9.0
+        },
+        {
+            _id: 'katie',
+            occupation: 'kitten',
+            cuteness: 7.0
+        },
+        {
+            _id: 'felix',
+            occupation: 'kitten',
+            cuteness: 8.0
+        }
+    ]);
 
     //localdb.put({
     //    _id: new Date().toJSON(),

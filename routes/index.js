@@ -4,8 +4,8 @@ var router = express.Router();
 // var PouchDB = require('pouchdb');
 // var localdb = new PouchDB('kittens');
 // var remotedb = new PouchDB('http://localhost:5984/kittens');
-
-// localdb.info().then(function (info) {
+//
+// remotedb.info().then(function (info) {
 //   console.log(info);
 // });
 
@@ -21,10 +21,6 @@ var router = express.Router();
 //   ]
 // };
 // localdb.put(doc);
-
-// remotedb.info().then(function (info) {
-//   console.log(info);
-// });
 
 /* GET home page. */
 router.get('/', function(req, res, next) {

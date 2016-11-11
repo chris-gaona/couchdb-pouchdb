@@ -3,15 +3,70 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+  input(type="file" id="inputFile")
+  #img_meta_data Please upload a File
 
   script(src="//cdn.jsdelivr.net/pouchdb/6.0.7/pouchdb.min.js")
   script.
     window.PouchDB = PouchDB;
 
-    var localdb = new PouchDB('kittens');
+    //var localdb = new PouchDB('kittens');
+    new PouchDB('kittens').destroy();
 
-    localdb.info().then(function (info) {
-        console.log(info);
+    //localdb.info().then(function (info) {
+        //console.log(info);
+    //});
+
+    // upload user image or file to pouchdb
+    document.addEventListener('DOMContentLoaded', function () {
+        var inputFile = document.querySelector('#inputFile');
+        var imageMetaData = document.querySelector('#img_meta_data');
+        var getFile;
+
+        function fileUpload() {
+            getFile = inputFile.files[0];
+            // getFile is now a Blob
+
+            // Destroy the database before doing anything, because I want
+            // you to see the same thing if you reload.
+            // Ignore the man behind the curtain!
+            new PouchDB('sample').destroy().then(function () {
+                return new PouchDB('sample');
+            }).then(function (db) {
+                //
+                // IMPORTANT CODE STARTS HERE
+                //
+                db.put({
+                    _id: 'image',
+                    _attachments: {
+                        "file": {
+                            type: getFile.type,
+                            data: getFile
+                        }
+                    }
+                }).then(function () {
+                    return db.getAttachment('image', 'file');
+                }).then(function (blob) {
+                    var url = URL.createObjectURL(blob);
+                    var img = document.createElement('img');
+                    img.src = url;
+                    document.body.appendChild(img);
+
+                    var fileSize = JSON.stringify(Math.floor(blob.size / 1024));
+                    var contentType = JSON.stringify(blob.type);
+
+                    imageMetaData.innerText = 'Filesize: ' + fileSize + 'KB, Content-Type: ' + contentType;
+                }).catch(function (err) {
+                    console.log(err);
+                });
+                //
+                // IMPORTANT CODE ENDS HERE
+                //
+            });
+        }
+
+        // wait for change, then call the function
+        inputFile.addEventListener('change', fileUpload, false);
     });
 
     // The bulkDocs() API is very simple. It just takes a list of documents that you want to put() into the database:
@@ -33,32 +88,32 @@ block content
     //    }
     //]);
 
-    localdb.put({
-        _id: new Date().toJSON(),
-        name: 'Mittens',
-        occupation: 'kitten',
-        cuteness: 9.0
-    }).then(function () {
-        return localdb.put({
-            _id: new Date().toJSON(),
-            name: 'Katie',
-            occupation: 'kitten',
-            cuteness: 7.0
-        });
-    }).then(function () {
-        return localdb.put({
-            _id: new Date().toJSON(),
-            name: 'Felix',
-            occupation: 'kitten',
-            cuteness: 8.0
-        });
-    }).then(function () {
-        return localdb.allDocs({include_docs: true});
-    }).then(function (response) {
-        console.log(response);
-    }).catch(function (err) {
-        console.log(err);
-    });
+    //localdb.put({
+    //    _id: new Date().toJSON(),
+    //    name: 'Mittens',
+    //    occupation: 'kitten',
+    //    cuteness: 9.0
+    //}).then(function () {
+    //    return localdb.put({
+    //        _id: new Date().toJSON(),
+    //        name: 'Katie',
+    //        occupation: 'kitten',
+    //        cuteness: 7.0
+    //    });
+    //}).then(function () {
+    //    return localdb.put({
+    //        _id: new Date().toJSON(),
+    //        name: 'Felix',
+    //        occupation: 'kitten',
+    //        cuteness: 8.0
+    //    });
+    //}).then(function () {
+    //    return localdb.allDocs({include_docs: true});
+    //}).then(function (response) {
+    //    console.log(response);
+    //}).catch(function (err) {
+    //    console.log(err);
+    //});
 
     //     var doc = {
     //    "_id": "mittens",
